@@ -15,13 +15,24 @@ uint32_t timeToStartMainLoop = 0;
 StatusLed statusLed(13);
 
 void setup() {
-    // put your setup code here, to run once:
+	pinMode(cooler_pin, OUTPUT);
+	digitalWrite(cooler_pin, LOW);
+	//Serial.begin(Serial_baud_count);
 }
 
 void loop() {
     timeToStartMainLoop = millis();
-    statusLed.update();
-    // put your main code here, to run repeatedly
+	statusLed.update();		//мигнем светодиодом что контроллер жив
+	if (temperature.update()) {
+		//temperature.print();
+		if (temperature.getMax() > temperature_error) {
+			if (temperature.getMax() > temperature_high) {
+				digitalWrite(cooler_pin, HIGH);
+			} else if (temperature.getMax() < temperature_low) {
+				digitalWrite(cooler_pin, LOW);
+			};
+		};
+	};
     timeToStartMainLoop = millis() - timeToStartMainLoop;
 	if (timeToStartMainLoop<timeMainLoopMax) delay(timeMainLoopMax - timeToStartMainLoop);
 }
